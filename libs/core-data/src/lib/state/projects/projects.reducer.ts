@@ -1,62 +1,53 @@
-import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
-import { Project } from '@workshop/core-data';
+import { Project } from './../../projects/project.model';
 
-import { ProjectsActions, ProjectsActionTypes } from './projects.actions';
+const initialProjects: Project[] = [
+  {
+    id: '1',
+    title: 'Project One',
+    details: 'This is a sample project',
+    percentComplete: 20,
+    approved: false,
+    customerId: null
+  },
+  {
+    id: '2',
+    title: 'Project Two',
+    details: 'This is a sample project',
+    percentComplete: 40,
+    approved: false,
+    customerId: null
+  },
+  {
+    id: '3',
+    title: 'Project Three',
+    details: 'This is a sample project',
+    percentComplete: 100,
+    approved: true,
+    customerId: null
+  }
+];
 
-/**
- * Interface to the part of the Store containing ProjectsState
- * and other information related to ProjectsData.
- */
-export interface ProjectsState extends EntityState<Project> {
-  selectedProjectId: string | null;
+const createProject = (projects, project) => [...projects, project];
+const updateProject = (projects, project) => projects.map(p => {
+  return p.id === project.id ? Object.assign({}, project) : p;
+});
+const deleteProject = (projects, project) => projects.filter(w => project.id !== w.id);
+
+// Define shape of state
+export interface ProjectsState {
+  projects: Project[];
+  selectedProjectId: string | null
+}
+// Define initial state
+export const initialState: ProjectsState = {
+  projects: initialProjects,
+  selectedProjectId: null
 }
 
-export const adapter: EntityAdapter<Project> = createEntityAdapter<Project>();
-export const initialState: ProjectsState = adapter.getInitialState({
-  // additional entity state properties
-  selectedProjectId: null,
-});
-
-export function projectsReducer(state = initialState, action: ProjectsActions): ProjectsState {
-  switch (action.type) {
-    case ProjectsActionTypes.ProjectSelected: {
-      return Object.assign({}, state, { selectedProjectId: action.payload });
-    }
-
-    case ProjectsActionTypes.ProjectsLoaded: {
-      return adapter.addAll(action.payload, state);
-    }
-
-    case ProjectsActionTypes.ProjectAdded: {
-      return adapter.addOne(action.payload, state);
-    }
-
-    case ProjectsActionTypes.ProjectUpdated: {
-      return adapter.upsertOne(action.payload, state);
-    }
-
-    case ProjectsActionTypes.ProjectDeleted: {
-      return adapter.removeOne(action.payload.id, state);
-    }
-
-    default:
+// Simple reducer 
+export function reducer (state = initialState, action): ProjectsState {
+  switch(action.type){
+    default: 
       return state;
   }
 }
-
-export const getSelectedProjectId = (state: ProjectsState) => state.selectedProjectId;
-
-// get the selectors
-const { selectIds, selectEntities, selectAll, selectTotal } = adapter.getSelectors();
-
-// select the array of project ids
-export const selectProjectIds = selectIds;
-
-// select the dictionary of project entities
-export const selectProjectEntities = selectEntities;
-
-// select the array of projects
-export const selectAllProjects = selectAll;
-
-// select the total project count
-export const selectProjectTotal = selectTotal;

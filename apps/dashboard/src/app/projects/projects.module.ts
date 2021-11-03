@@ -7,6 +7,8 @@ import { ProjectsListComponent } from './projects-list/projects-list.component';
 import { ProjectDetailsComponent } from './project-details/project-details.component';
 import { MaterialModule } from '@workshop/material';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { CoreDataModule } from '@workshop/core-data';
+import { Store } from '@ngrx/store';
 
 @NgModule({
   imports: [

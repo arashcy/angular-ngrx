@@ -1,6 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { Project, ProjectsFacade, Customer, CustomersFacade } from '@workshop/core-data';
 import { Observable } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { Customer, Project, ProjectsService, NotificationsService, CustomersService, ProjectsState } from '@workshop/core-data';
+import { select, Store } from '@ngrx/store';
+import { map } from 'rxjs/operators';
+
+const emptyProject: Project = {
+  id: null,
+  title: '',
+  details: '',
+  percentComplete: 0,
+  approved: false,
+  customerId: null
+}
 
 @Component({
   selector: 'app-projects',
@@ -8,109 +19,80 @@ import { Observable } from 'rxjs';
   styleUrls: ['./projects.component.scss']
 })
 export class ProjectsComponent implements OnInit {
-  customers$: Observable<Customer[]> = this.customersFacade.allCustomers$;
-  projects$: Observable<Project[]> = this.projectsFacade.allProjects$;
-  currentProject$: Observable<Project> = this.projectsFacade.currentProject$;
+  projects$: Observable<Project[]>;
+  customers$: Observable<Customer[]>;
+  currentProject: Project;
 
   constructor(
-    private projectsFacade: ProjectsFacade,
-    private customersFacade: CustomersFacade
-  ) { }
+    private projectsService: ProjectsService,
+    private customerService: CustomersService,
+    private store: Store<ProjectsState>,
+    private ns: NotificationsService) {
+      this.projects$ = store.pipe(
+        select('projects'),
+        map((projects: ProjectsState ) => projects.projects)
+      )
+    }
 
   ngOnInit() {
-    this.customersFacade.loadCustomers();
-    this.projectsFacade.loadProjects();
-    this.projectsFacade.mutations$.subscribe(_ => this.resetCurrentProject());
+    // this.getProjects();
+    this.getCustomers();
     this.resetCurrentProject();
   }
 
   resetCurrentProject() {
-    this.selectProject({id: null});
+    this.currentProject = emptyProject;
   }
 
   selectProject(project) {
-    this.projectsFacade.selectProject(project.id);
+    this.currentProject = project;
+  }
+
+  cancel(project) {
+    this.resetCurrentProject();
+  }
+
+  getCustomers() {
+    this.customers$ = this.customerService.all();
+  }
+
+  getProjects() {
+    this.projects$ = this.projectsService.all();
   }
 
   saveProject(project) {
     if (!project.id) {
-      this.projectsFacade.addProject(project);
+      this.createProject(project);
     } else {
-      this.projectsFacade.updateProject(project);
+      this.updateProject(project);
     }
   }
 
-  deleteProject(project) {
-    this.projectsFacade.deleteProject(project);
+  createProject(project) {
+    this.projectsService.create(project)
+      .subscribe(response => {
+        this.ns.emit('Project created!');
+        this.getProjects();
+        this.resetCurrentProject();
+      });
   }
-  // projects$: Observable<Project[]>;
-  // customers$: Observable<Customer[]>;
-  // currentProject: Project;
 
-  // constructor(
-  //   private projectsService: ProjectsService,
-  //   private customerService: CustomersService,
-  //   private ns: NotificationsService) { }
+  updateProject(project) {
+    this.projectsService.update(project)
+      .subscribe(response => {
+        this.ns.emit('Project saved!');
+        this.getProjects();
+        this.resetCurrentProject();
+      });
+  }
 
-  // ngOnInit() {
-  //   this.getProjects();
-  //   this.getCustomers();
-  //   this.resetCurrentProject();
-  // }
-
-  // resetCurrentProject() {
-  //   this.currentProject = emptyProject;
-  // }
-
-  // selectProject(project) {
-  //   this.currentProject = project;
-  // }
-
-  // cancel(project) {
-  //   this.resetCurrentProject();
-  // }
-
-  // getCustomers() {
-  //   this.customers$ = this.customerService.all();
-  // }
-
-  // getProjects() {
-  //   this.projects$ = this.projectsService.all();
-  // }
-
-  // saveProject(project) {
-  //   if (!project.id) {
-  //     this.createProject(project);
-  //   } else {
-  //     this.updateProject(project);
-  //   }
-  // }
-
-  // createProject(project) {
-  //   this.projectsService.create(project)
-  //     .subscribe(response => {
-  //       this.ns.emit('Project created!');
-  //       this.getProjects();
-  //       this.resetCurrentProject();
-  //     });
-  // }
-
-  // updateProject(project) {
-  //   this.projectsService.update(project)
-  //     .subscribe(response => {
-  //       this.ns.emit('Project saved!');
-  //       this.getProjects();
-  //       this.resetCurrentProject();
-  //     });
-  // }
-
-  // deleteProject(project) {
-  //   this.projectsService.delete(project)
-  //     .subscribe(response => {
-  //       this.ns.emit('Project deleted!');
-  //       this.getProjects();
-  //       this.resetCurrentProject();
-  //     });
-  // }
+  deleteProject(project) {
+    this.projectsService.delete(project)
+      .subscribe(response => {
+        this.ns.emit('Project deleted!');
+        this.getProjects();
+        this.resetCurrentProject();
+      });
+  }
 }
 

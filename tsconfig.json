@@ -1,7 +1,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "importHelpers": true,
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",

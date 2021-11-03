@@ -17,10 +17,6 @@ import { StateModule } from './state/state.module';
     CustomersService,
     ProjectsService
   ],
-  imports: [
-    CommonModule,
-    HttpClientModule,
-    StateModule
-  ],
+  imports: [CommonModule, HttpClientModule, StateModule],
 })
 export class CoreDataModule {}
