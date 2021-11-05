@@ -1,3 +1,4 @@
+
 export { AuthGuardService } from './lib/auth/auth-guard.service';
 export { AuthService } from './lib/auth/auth.service';
 export { CoreDataModule } from './lib/core-data.module';
@@ -10,3 +11,4 @@ export { CustomersFacade } from './lib/state/customers/customers.facade';
 
 // expose projects state
 export { ProjectsState } from './lib/state/projects/projects.reducer'
+export { ProjectQuery, AddProject, UpdateProject, DeleteProject } from './lib/state/projects/projects.actions';

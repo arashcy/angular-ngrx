@@ -1,4 +1,6 @@
 import { Project } from './../../projects/project.model';
+import { ProjectActions, ProjectsActionTypes } from './projects.actions';
+
 
 const initialProjects: Project[] = [
   {
@@ -36,7 +38,7 @@ const deleteProject = (projects, project) => projects.filter(w => project.id !==
 // Define shape of state
 export interface ProjectsState {
   projects: Project[];
-  selectedProjectId: string | null
+  selectedProjectId: string | null | Project
 }
 // Define initial state
 export const initialState: ProjectsState = {
@@ -45,24 +47,24 @@ export const initialState: ProjectsState = {
 }
 
 // Simple reducer 
-export function reducer (state = initialState, action): ProjectsState {
+export function reducer (state = initialState, action: ProjectActions): ProjectsState {
   switch(action.type){
-    case 'select':
+    case ProjectsActionTypes.ProjectQuery:
       return {
         selectedProjectId: action.payload,
         projects: state.projects
       }
-    case 'create':
+    case ProjectsActionTypes.AddProject:
       return {
         selectedProjectId: state.selectedProjectId,
         projects: createProject(state.projects, action.payload)
       }
-    case 'update':
+    case ProjectsActionTypes.UpdateProject:
       return {
         selectedProjectId: state.selectedProjectId,
         projects: updateProject(state.projects, action.payload)
       }
-    case 'delete':
+    case ProjectsActionTypes.DeleteProject:
       return {
         selectedProjectId: state.selectedProjectId,
         projects: deleteProject(state.projects, action.payload)
